@@ -207,9 +207,63 @@ ${Object.entries(inputs || {})
   .map(([k, v]) => `${k}: ${v}`)
   .join("\n")}`;
 
-      const userKey = apiKey ? String(apiKey).trim() : "";
+      // 1. Server-side OPENROUTER_API_KEY from environment variables (e.g. Vercel)
+      const serverOpenRouterKey = process.env.OPENROUTER_API_KEY;
+      if (serverOpenRouterKey) {
+        try {
+          const orResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${serverOpenRouterKey}`,
+              "HTTP-Referer": "https://snapsolve.app",
+              "X-Title": "SnapSolve AI Workspace",
+            },
+            body: JSON.stringify({
+              model: model || "openai/gpt-4o-mini",
+              messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPrompt },
+              ],
+              temperature: 0.3,
+              max_tokens: 2500,
+            }),
+          });
 
-      // 1. If user provided a custom key in request
+          if (orResponse.ok) {
+            const data = await orResponse.json();
+            const content = data?.choices?.[0]?.message?.content;
+            if (content) {
+              return res.json({ success: true, result: content.trim() });
+            }
+          }
+        } catch (orErr: any) {
+          console.error("Server OPENROUTER_API_KEY error:", orErr?.message || orErr);
+        }
+      }
+
+      // 2. Server-side GEMINI_API_KEY from environment
+      const serverGeminiKey = process.env.GEMINI_API_KEY;
+      if (serverGeminiKey) {
+        try {
+          const ai = new GoogleGenAI({ apiKey: serverGeminiKey });
+          const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: userPrompt,
+            config: {
+              systemInstruction: systemPrompt,
+            },
+          });
+          if (response.text) {
+            return res.json({ success: true, result: response.text });
+          }
+        } catch (gemErr: any) {
+          console.error("Server GEMINI_API_KEY error:", gemErr?.message || gemErr);
+        }
+      }
+
+      // 3. Fallback to client-provided request apiKey if passed
+      const userKey = apiKey ? String(apiKey).trim() : "";
       if (userKey) {
         if (userKey.startsWith("AIzaSy") || userKey.startsWith("AIza")) {
           // Gemini API Key provided by user
@@ -263,26 +317,6 @@ ${Object.entries(inputs || {})
           } catch (orErr: any) {
             console.error("OpenRouter fetch error:", orErr?.message || orErr);
           }
-        }
-      }
-
-      // 2. Server-side GEMINI_API_KEY from environment
-      const serverGeminiKey = process.env.GEMINI_API_KEY;
-      if (serverGeminiKey) {
-        try {
-          const ai = new GoogleGenAI({ apiKey: serverGeminiKey });
-          const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: userPrompt,
-            config: {
-              systemInstruction: systemPrompt,
-            },
-          });
-          if (response.text) {
-            return res.json({ success: true, result: response.text });
-          }
-        } catch (gemErr: any) {
-          console.error("Server GEMINI_API_KEY error:", gemErr?.message || gemErr);
         }
       }
 

@@ -1,18 +1,14 @@
 import React, { useState } from "react";
 import { Logo } from "./Logo";
 import { DEMO_MODE } from "../config";
-import { Sparkles, Key, CheckCircle, Menu, X } from "lucide-react";
+import { Sparkles, Menu, X } from "lucide-react";
 
 interface NavbarProps {
-  onOpenApiKeyModal: () => void;
   onScrollToServices: () => void;
-  hasCustomKey: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  onOpenApiKeyModal,
   onScrollToServices,
-  hasCustomKey,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -49,26 +45,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </nav>
 
-        {/* Right CTA / Config Actions */}
+        {/* Right CTA Actions */}
         <div className="hidden md:flex items-center gap-3">
-          <button
-            onClick={onOpenApiKeyModal}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-white/80 hover:bg-white text-[#2B2B2B] border border-[#FFD1DC] shadow-sm hover:border-[#FF80AB] transition-all cursor-pointer"
-            title="Configure AI API Key"
-          >
-            {hasCustomKey ? (
-              <>
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-                <span>API Key Set</span>
-              </>
-            ) : (
-              <>
-                <Key className="w-3.5 h-3.5 text-[#FF5C8A]" />
-                <span>API Config</span>
-              </>
-            )}
-          </button>
-
           <button
             onClick={onScrollToServices}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#FF5C8A] to-[#FF80AB] text-white text-xs font-bold shadow-md shadow-[#FF5C8A]/20 hover:shadow-lg hover:shadow-[#FF5C8A]/35 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
@@ -114,16 +92,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             How it Works
           </a>
           <div className="pt-2 flex flex-col gap-2">
-            <button
-              onClick={() => {
-                onOpenApiKeyModal();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white border border-[#FFD1DC] text-xs font-bold text-[#2B2B2B]"
-            >
-              <Key className="w-4 h-4 text-[#FF5C8A]" />
-              {hasCustomKey ? "API Key Configured" : "Setup OpenRouter API Key"}
-            </button>
             <button
               onClick={() => {
                 onScrollToServices();

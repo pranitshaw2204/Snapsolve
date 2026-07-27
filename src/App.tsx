@@ -1,11 +1,10 @@
 import React, { useState, useRef } from "react";
-import { SERVICES, ServiceItem, OPENROUTER_API_KEY } from "./config";
+import { SERVICES, ServiceItem } from "./config";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { ServiceCard } from "./components/ServiceCard";
 import { ServiceDetailModal } from "./components/ServiceDetailModal";
 import { WorkspaceModal } from "./components/WorkspaceModal";
-import { ApiKeyModal } from "./components/ApiKeyModal";
 import { HowItWorks } from "./components/HowItWorks";
 import { Footer } from "./components/Footer";
 import { Search, Sparkles } from "lucide-react";
@@ -14,13 +13,7 @@ export default function App() {
   // Navigation & Modal state
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [activeWorkspaceService, setActiveWorkspaceService] = useState<ServiceItem | null>(null);
-  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
   
-  // Custom API key state stored in localStorage if entered
-  const [customApiKey, setCustomApiKey] = useState<string>(() => {
-    return localStorage.getItem("snapsolve_openrouter_key") || OPENROUTER_API_KEY || "";
-  });
-
   // Filter & Search state
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -38,16 +31,6 @@ export default function App() {
     "Startup & Marketing",
     "Design Tools"
   ];
-
-  const handleSaveKey = (key: string, model?: string) => {
-    setCustomApiKey(key);
-    localStorage.setItem("snapsolve_openrouter_key", key);
-    localStorage.setItem("snapsolve_api_key", key);
-    if (model) {
-      localStorage.setItem("snapsolve_openrouter_model", model);
-      localStorage.setItem("snapsolve_model", model);
-    }
-  };
 
   const handleScrollToServices = () => {
     servicesRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -70,9 +53,7 @@ export default function App() {
     <div className="min-h-screen bg-[#FFF8FB] text-[#2B2B2B] flex flex-col font-sans selection:bg-[#FFD1DC] selection:text-[#FF5C8A]">
       {/* Top Navbar */}
       <Navbar
-        onOpenApiKeyModal={() => setApiKeyModalOpen(true)}
         onScrollToServices={handleScrollToServices}
-        hasCustomKey={Boolean(customApiKey && customApiKey.length > 5)}
       />
 
       {/* Hero Section */}
@@ -180,14 +161,6 @@ export default function App() {
           setActiveWorkspaceService(null);
           handleScrollToServices();
         }}
-      />
-
-      {/* API Key Modal */}
-      <ApiKeyModal
-        isOpen={apiKeyModalOpen}
-        onClose={() => setApiKeyModalOpen(false)}
-        onSaveKey={handleSaveKey}
-        currentKey={customApiKey}
       />
     </div>
   );
