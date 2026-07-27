@@ -1,0 +1,6 @@
+{
+  "name": "SnapSolve",
+  "description": "Need it? Snap it. Solve it. Micro-services for everyday student and professional tasks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
